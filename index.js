@@ -1,7 +1,14 @@
 const express = require('express');
-const { insertSchema } = require('./dbServices/schemaService');
+const cors = require("cors");
+
 const app = express();
 const port = 5001;
+app.use(cors())
+app.use(express.json());
+
+//connect mongodb
+
+app.use('/run',require("./router/index"))
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');

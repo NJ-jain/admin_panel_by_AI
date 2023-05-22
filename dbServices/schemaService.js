@@ -1,7 +1,6 @@
 const dataSchema = require("../mongoose/dataSchema");
-// const { nanoid } = require("nanoid");
 const mongoose = require('mongoose')
-async function insertSchema() {
+async function updateSchemaObject() {
 const mongooseURL = "mongodb+srv://Chanchal:root@cluster0.irtmyo9.mongodb.net/dbDash?retryWrites=true&w=majority"
     const conn = await mongoose.connect(mongooseURL , {
         useUnifiedTopology:true,
@@ -83,11 +82,27 @@ const mongooseURL = "mongodb+srv://Chanchal:root@cluster0.irtmyo9.mongodb.net/db
 } }
     );
     console.log("insertSchema",insertedSchema)
-   return insertSchema;
+   return insertedSchema;
   } catch (error) {
     throw error;
   }
 }
+async function insertTableNameDesinPostgres(NameDescObject)
+{
+  try {
+    const insertedSchema = await dataSchema.updateOne(
+      {
+        id: "646b13964c684c360ed71d39",
+      },
+      { $upsert:NameDescObject}
+    )
+    console.log("insertedSchema",insertedSchema)
+  }
+  catch(e){
+
+  }
+
+}
 
 
-module.exports = {insertSchema}
+module.exports = {updateSchemaObject,insertTableNameDesinPostgres}

@@ -10,23 +10,20 @@ const schemaQuery  = async (columnData , operation ) => {
 
     const completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: [{"role": "user", "content": ` need Postgres query to create a new column type GENERATED COLUMN, current columns -  (${columnData}).  ${operation} , give query without explanation in below json format -
-        {
-            "alter_table": "table_name",
-            "add_column": {
-                "new_column_name": {
-                    "data_type": "type",
-                    "generated": {
-                        "expression": " || ' ' || ",
-                        "stored": true,
-                        "always": true
-                    }
-                }
-            }
-        }`}],
-        // messages: [{"role": "user", "content": `columns ${columnData}. ${operation} in another generated column generate the postgress query for that without explaination please generate in this example format numeric GENERATED ALWAYS AS (kilometer || age || speed) STORED  Instructions: generate query only if possible according to rules of postgressql otherwisw say not possible only without explaination\n\n `}],
+        messages: [{"role": "user", "content": `` }],
       });
       return completion.data.choices[0].message ; 
      
 }
-module.exports = {generateColumnQuery}
+const getTableNameandDescription  = async (tableSchema ) => {
+
+
+    const completion = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [{"role": "user", "content": `please give me short descriptiion  and tableName in the json format  { "name":
+        "tableName" ,"description":"what table does" } ${tableSchema}` }],
+      });
+      return completion.data.choices[0].message ; 
+     
+}
+module.exports = {schemaQuery,getTableNameandDescription}
