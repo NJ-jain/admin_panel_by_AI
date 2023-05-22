@@ -1,11 +1,13 @@
 
+const { getTableNameandDescription } = require("../Services/openai");
 const  {insertTableNameDesinPostgres} =  require( "../dbServices/schemaService")
 const insertSchema = async (req, res) => {
     try {
-        const createTableQueries = separateCreateTableQueries()
-        createTableQueries.forEach( async (element) => {
-          const tableNameandDes =  await  getTableNameandDescription(element)  
-          const ans = await  insertTableNameDesinPostgres(tableNameandDes)
+        const createTableQueries = separateCreateTableQueries() // getting  array of individual table query 
+        createTableQueries.forEach( async (element) => {     // element = single table schema
+          const tableNameandDes =  await  getTableNameandDescription(element)  // tablename and description
+          const ans = await  insertTableNameDesinPostgres(tableNameandDes)  // ,mongoose me insert name and des 
+                                                                                // insert table object ke andar  { tablename :  schema} 
         });
       
        return res.status(201).json({"success":ans});
