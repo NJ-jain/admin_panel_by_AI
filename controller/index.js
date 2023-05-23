@@ -1,5 +1,5 @@
 
-const { getTableNameandDescription, findTableNameForSchema, userFirendlyWayResponse, findActualQueryToRun } = require("../Services/openai");
+const { getTableNameandDescription, findTableNameForSchema,  findActualQueryToRun } = require("../Services/openai");
 const  {insertTableNameDesinPostgres, insertTableNameandSchema, getAllTableNameAndDescription, getSelectedTableSchema} =  require( "../dbServices/schemaService")
 const mysql = require('mysql');
 const connection = mysql.createConnection({
@@ -145,8 +145,8 @@ const insertSchema = async (req, res) => {
       
       // const codeOutput  = eval(codeToRun);
       console.log("final ouptut",finalOutput)
-      const reponseToUser  = await userFirendlyWayResponse(finalOutput);
-     return res.status(201).json({"success":reponseToUser});
+    //   const reponseToUser  = await userFirendlyWayResponse(finalOutput);
+     return res.status(201).json({"success":"reponseToUser"});
   } catch (error) {
       console.log("helllo",error)
      return res.status(400).json({"failed":error});
