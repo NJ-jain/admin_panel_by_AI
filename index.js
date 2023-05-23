@@ -5,7 +5,7 @@ const app = express();
 const port = 5001;
 app.use(cors())
 app.use(express.json());
-
+const dotenv = require('dotenv').config()
 //connect mongodb
 
 app.use('/run',require("./router/index"))
