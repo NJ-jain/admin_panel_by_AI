@@ -170,5 +170,23 @@ async function getAllTableNameAndDescription(name , tableNameAndSchema) {
   }
 
 }
+async function getSelectedTableSchema(name) {
+  try {
+    const mongooseURL = "mongodb+srv://Chanchal:root@cluster0.irtmyo9.mongodb.net/dbDash?retryWrites=true&w=majority"
+    const conn = await mongoose.connect(mongooseURL, { useUnifiedTopology: true , useNewUrlParser: true })
+    const doc = await dataSchema.findById("646b13964c684c360ed71d39");
+    var tablesSchema = ""
+    for (let i = 0; i < name.length; i++) {
+      console.log(name[i])
+      tablesSchema +=  doc?.postgresCredentials?.tablesSchema?.['actual_fail_delivered'] + "," ;  
+    }
+    return tablesSchema ;
+  }
+  catch (e) {
+    console.log("e",e)
 
-module.exports = { updateSchemaObject, insertTableNameDesinPostgres,insertTableNameandSchema,getAllTableNameAndDescription }
+  }
+
+}
+
+module.exports = { updateSchemaObject, insertTableNameDesinPostgres,insertTableNameandSchema,getAllTableNameAndDescription,getSelectedTableSchema }

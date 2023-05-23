@@ -1,6 +1,13 @@
 
-const { getTableNameandDescription, findTableNameForSchema } = require("../Services/openai");
-const  {insertTableNameDesinPostgres, insertTableNameandSchema, getAllTableNameAndDescription} =  require( "../dbServices/schemaService")
+const { getTableNameandDescription, findTableNameForSchema, userFirendlyWayResponse, findActualQueryToRun } = require("../Services/openai");
+const  {insertTableNameDesinPostgres, insertTableNameandSchema, getAllTableNameAndDescription, getSelectedTableSchema} =  require( "../dbServices/schemaService")
+const mysql = require('mysql');
+const connection = mysql.createConnection({
+  host: 'mysql.test.txtapi.com',
+  user: 'reportAITest',
+  password: '4LA94QVAIah7c1JZ',
+  database: 'test_betatest'
+});
 const schemass = `************************************************************
 # Sequel Pro SQL dump
 # Version 5446
@@ -83,7 +90,6 @@ const insertSchema = async (req, res) => {
             await insertTableNameandSchema(tableNameandDes1.name , tableData);
             // Perform any other asynchronous operations here
           }
-        console.log("helllo")
       
        return res.status(201).json({"success":"ans"});
     } catch (error) {
@@ -93,11 +99,54 @@ const insertSchema = async (req, res) => {
  }
  const getQueryResult = async (req, res) => {
   try {
-   var  AllTablesNameAnddes = await  getAllTableNameAndDescription()   
+      var AllTablesNameAnddes = await getAllTableNameAndDescription()   
       console.log("AllTablesNameAnddes",AllTablesNameAnddes)
-      const {content } = await findTableNameForSchema("i want the no of failed delveried   ",findTableNameForSchema)
+      const {content } = await findTableNameForSchema("i want the no of failed delveried   ",AllTablesNameAnddes)
+      console.log("content",content)
+      const tableNameArray = JSON.parse(content).tablenames
+      const selectedTablesSchema =  await getSelectedTableSchema(tableNameArray) ;
+      console.log("selectedTablesSchema",selectedTablesSchema)
+      let codeToRun = await findActualQueryToRun("i want the  total no of failed delivered  " ,selectedTablesSchema );
+      console.log("codeToRun",codeToRun.content)
+      codeToRun = JSON.parse(codeToRun.content).code
+      console.log("code to run ",codeToRun)
+
+      // const connection = connection();
+      connection.connect((err) => {
+        if (err) {
+          console.error('Error connecting to the database:', err);
+          return;
+        }
       
-     return res.status(201).json({"success":"ans"});
+        console.log('Connected to the database!');
+      });
+
+      var finalOutput = ""
+      await connection.query(codeToRun, (err, results) => {
+        if (err) {
+          console.error('Error executing the query:', err);
+          return;
+        }
+        finalOutput = results;
+      
+        console.log('Retrieved data:', results);
+      });
+
+      connection.end((err) => {
+        if (err) {
+          console.error('Error closing the database connection:', err);
+          return;
+        }
+      
+        console.log('Connection closed.');
+      });
+
+      
+      
+      // const codeOutput  = eval(codeToRun);
+      console.log("final ouptut",finalOutput)
+      const reponseToUser  = await userFirendlyWayResponse(finalOutput);
+     return res.status(201).json({"success":reponseToUser});
   } catch (error) {
       console.log("helllo",error)
      return res.status(400).json({"failed":error});
