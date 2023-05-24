@@ -6,15 +6,12 @@ const openai = new OpenAIApi(configuration);
 
 const getTableNameandDescription = async (tableSchema) => {
   console.log("first",
-    { "role": "user", "content": `Provide a concise only JSON with 'tableName' and 'description' for the following table schema: ${tableSchema}. The JSON should look like { "name": "tableName", "description":"table purpose" } and be error-free.` }
+    { "role": "user", "content": `Provide a concise only array of JSON with 'tableName' and 'description' for the following table schema: ${tableSchema}. The JSON should look like [{ "name": "tableName", "description":"table purpose" ,schema : "create table "} ] and be error-free.` }
   )
 
   const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
-    messages: [{
-      "role": "user",
-      "content": `Provide a concise only JSON with 'tableName' and 'description' for the following table schema: ${tableSchema}. The JSON should look like { "name": "tableName", "description":"table purpose" } and be error-free.`
-    }]
+    messages: [ { "role": "user", "content": `Provide a array of JSON with 'tableName' and 'description and schema' for the followings table schema: ${tableSchema}. The JSON should look like [{ "name": "tableName", "description":"table purpose" ,schema : "create table "},{"name": "tableName1", "description":"table purpose1" ,schema : "create table "} ] and be error-free.` }]
   });
   return completion.data.choices[0].message;
 
