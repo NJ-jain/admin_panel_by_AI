@@ -4,47 +4,122 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-const getTableNameandDescription  = async (tableSchema ) => {
+const getTableNameandDescription = async (tableSchema) => {
+  console.log("first",
+    { "role": "user", "content": `Provide a concise only JSON with 'tableName' and 'description' for the following table schema: ${tableSchema}. The JSON should look like { "name": "tableName", "description":"table purpose" } and be error-free.` }
+  )
 
-
-    const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [{"role": "user", "content": `Provide a concise only JSON with 'tableName' and 'description' for the following table schema: ${tableSchema}. The JSON should look like { "name": "tableName", "description":"table purpose" } and be error-free.` }]
-      });
-      return completion.data.choices[0].message ; 
-     
-}
-const findTableNameForSchema = async (userQuery,AllTablesAndSchema ) => {
   const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [{"role": "user", "content": `{
-        "task": "Your task is to identify table names from the database that might be used to execute a query and retrieve data for a given user query.",
+    model: "gpt-3.5-turbo",
+    messages: [{
+      "role": "user",
+      "content": `Provide a concise only JSON with 'tableName' and 'description' for the following table schema: ${tableSchema}. The JSON should look like { "name": "tableName", "description":"table purpose" } and be error-free.`
+    }]
+  });
+  return completion.data.choices[0].message;
+
+}
+const findTableNameForSchema = async (userQuery, AllTablesAndSchema) => {
+  console.log("second", {
+    "role": "user",
+    "content": `
+      {
+        "task": "Your task is to identify table names of the database that might be used to execute a db query to retrieve data for a given user_query.",
+        "user_query": '${userQuery}',
         "instructions": [
-        "Guess table names for user query - ${userQuery}",
-        "The output format: { tablenames : ["table1","table2"], Mongo : [field 1, field 2] }",
-        "Consider all MySQL tables [${AllTablesAndSchema}]",
-        "Also consider all Mongo collections [All keys name]"
+          "The output format: { tablenames: ['table1', 'table2'], Mongo: [field1, field2] }",
+          "Consider all MySQL tables [${AllTablesAndSchema}]",
+          "Also consider all Mongo collections [All keys name]"
         ]
-        }` }]
-    });
-    return completion.data.choices[0].message ; 
-   
-}
-const findActualQueryToRun = async (userQuery,selectedSchema ) => {
-  const completion = await openai.createChatCompletion({
+      }
+    `
+  });
+  try {
+    var completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
-      messages: [{"role": "user", "content": `{
-        "task": "Finish the JavaScript code using user query ${userQuery} and schema ${selectedSchema} (PG, Mongo, or both).",
-        "instructions": [
-        "The code should work with no explanations needed",
-        "You can use several queries to get the desired result",
-        "Make sure the output is easy to read and engaging"
-        ],
-        "prompt": "Complete this JavaScript code: {}"
-        }` }]
+      messages: [
+        {
+          "role": "user",
+          "content": `
+            {
+              "task": "Your task is to identify table names of the database that might be used to execute a db query to retrieve data for a given user_query.",
+              "user_query": "${userQuery}",
+              "instructions": [
+                "The output format: { 'tablenames': ['table1', 'table2'], 'Mongo': ['field1', 'field2'] }",
+                "Consider all MySQL tables [${AllTablesAndSchema}]",
+                "Also consider all Mongo collections [AllMongoKeys]",
+                "do not return explanation"
+              ]
+            }
+          `
+        }
+        
+      ]
     });
-    return completion.data.choices[0].message ; 
-   
+  }
+  catch (e) {
+    console.log(e.message)
+
+  } 
+
+  return completion.data.choices[0].message;
+}
+
+const findActualQueryToRun = async (userQuery, selectedSchema, code) => {
+  console.log("third", {
+    "role": "system",
+    "content": `{
+      "task": Write the JavaScript code for user_query : ${userQuery} using given schema (SQL, Mongo, or both).,
+      "SQl_schema": ${selectedSchema},
+      "Mongo_schema": "",
+      "instructions": [
+        "Use arrow functions exclusively.",
+        "Do not assign new function to any variables.",
+        "Use the format: async(...args)=>{return response;}.",
+        "Don't escape double qouted characters inside function",
+        "Ensure code is  encoded, stringified, and prefer double quotes over single quotes.",
+        "Reverify your code and make sure it works without error",
+        "Return only code without explanations",
+        "You may use one or multiple queries to get the desired result",
+        "Make sure the code output is in English, easy to read for humans and engaging"
+      ],
+      "prompt":  this JavaScript code: ${code}
+    }`
+  })
+  try {
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          "role": "system",
+          "content": `{
+            "task": Write the JavaScript code for user_query : ${userQuery} using given schema (SQL, Mongo, or both).,
+            "SQl_schema": ${selectedSchema},
+            "Mongo_schema": "",
+            "instructions": [
+              "Use arrow functions exclusively.",
+              "Do not assign new function to any variables.",
+              "Use the format: async(...args)=>{return result[0][[0]];}.",
+              "Don't escape double qouted characters inside function",
+              "Ensure code is  encoded, stringified, and prefer double quotes over single quotes.",
+              "Reverify your code and make sure it works without error",
+              "Return only code without explanations",
+              "You may use one or multiple queries to get the desired result",
+              "Form final output in English sentence, easy to read for humans and engaging"
+            ],
+            "prompt":  this JavaScript code: ${code}
+          }`
+        }
+      ]
+    });
+    return completion?.data?.choices[0]?.message;
+  } catch (error) {
+    console.log("errorr",error.message)
+    return error
+  }
+  
+
+
 }
 // const userFirendlyWayResponse = async (output ) => {
 //   const completion = await openai.createChatCompletion({
@@ -52,6 +127,6 @@ const findActualQueryToRun = async (userQuery,selectedSchema ) => {
 //       messages: [{"role": "user", "content": `please give the current output of a query  in user friendly way ${output} ` }]
 //     });
 //     return completion.data.choices[0].message ; 
-   
+
 // }
-module.exports = {getTableNameandDescription,findTableNameForSchema,findActualQueryToRun}
+module.exports = { getTableNameandDescription, findTableNameForSchema, findActualQueryToRun }

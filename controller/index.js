@@ -1,13 +1,20 @@
 
 const { getTableNameandDescription, findTableNameForSchema,  findActualQueryToRun } = require("../Services/openai");
 const  {insertTableNameDesinPostgres, insertTableNameandSchema, getAllTableNameAndDescription, getSelectedTableSchema} =  require( "../dbServices/schemaService")
-const mysql = require('mysql');
-const connection = mysql.createConnection({
+// const mysql = require('mysql');
+const mysql = require('mysql2/promise');
+const pool = mysql.createPool({
   host: 'mysql.test.txtapi.com',
-  user: 'reportAITest',
-  password: '4LA94QVAIah7c1JZ',
-  database: 'test_betatest'
+    user: 'reportAITest',
+    password: '4LA94QVAIah7c1JZ',
+    database: 'test_betatest'
 });
+// const connection = mysql.createConnection({
+//   host: 'mysql.test.txtapi.com',
+//   user: 'reportAITest',
+//   password: '4LA94QVAIah7c1JZ',
+//   database: 'test_betatest'
+// });
 const schemass = `************************************************************
 # Sequel Pro SQL dump
 # Version 5446
@@ -100,53 +107,97 @@ const insertSchema = async (req, res) => {
  const getQueryResult = async (req, res) => {
   try {
       var AllTablesNameAnddes = await getAllTableNameAndDescription()   
-      console.log("AllTablesNameAnddes",AllTablesNameAnddes)
-      const {content } = await findTableNameForSchema("i want the no of failed delveried   ",AllTablesNameAnddes)
-      console.log("content",content)
-      const tableNameArray = JSON.parse(content).tablenames
-      const selectedTablesSchema =  await getSelectedTableSchema(tableNameArray) ;
-      console.log("selectedTablesSchema",selectedTablesSchema)
-      let codeToRun = await findActualQueryToRun("i want the  total no of failed delivered  " ,selectedTablesSchema );
-      console.log("codeToRun",codeToRun.content)
-      codeToRun = JSON.parse(codeToRun.content).code
-      console.log("code to run ",codeToRun)
+      // // console.log("AllTablesNameAnddes",AllTablesNameAnddes)
+      // const {content } = await findTableNameForSchema("i want the no of failed delveried   ",AllTablesNameAnddes)
+      // console.log("content",content)
+      // const tableNameArray = JSON.parse(content).tablenames
+      // const selectedTablesSchema =  await getSelectedTableSchema(tableNameArray) ;
+      // console.log("selectedTablesSchema",selectedTablesSchema)
+      // let codeToRun = await findActualQueryToRun("i want the  total no of failed delivered" ,selectedTablesSchema ,
+      // `const connection = await pool.getConnection();
+      // connection.release();`);
+      // console.log("codeToRun",codeToRun.content)
+
+    //  const res1 = eval(codeToRun.content
+    //  )
+    //  ` async () => {
+      const connection = await pool.getConnection();
+      // const query  = `SHOW TABLES `
+      const query = `SHOW TABLES;`
+
+      
+      const results = await connection.query(query)
+      console.log( "141", results[0]);
+      // console.log( "142", result);
+      console.log("length",results[0].length)
+
+      // Iterate through the table names
+      let ans = {}
+   for(var i =0;i<results[0].length;i++) {
+    var row = results[0][i]
+
+    console.log("row",row)
+      const tableName = row[`Tables_in_${connection.config.database}`];
+
+      // Execute SHOW CREATE TABLE for each table
+      const result = await connection.query(`SHOW CREATE TABLE \`${tableName}\``, )
+    console.log("result",result[0])
+    var createTableStatement = result[0]
+    ans = {...ans ,createTableStatement }
+          // const createTableStatement = result[0]?.['Create Table'];
+          // ans = ans+ '`Table: ${tableName}\n${createTableStatement}\n`'
+          // console.log(`Table: ${tableName}\n${createTableStatement}\n`);
+
+        // // Close the MySQL connection when finished
+        // if (tableName === results[results.length - 1][`Tables_in_${connection.config.database}`]) {
+        //   connection.release();
+        // }
+      }
+    
+      connection.release();
+      console.log("query executed successfully ")
+    //   return result[0][0]['SUM(final_failed)'];
+    // }`
+        // console.log("res1",await res1())
+      // codeToRun = JSON.parse(codeToRun.content).code
+      // console.log("code to run ",codeToRun)
 
       // const connection = connection();
-      connection.connect((err) => {
-        if (err) {
-          console.error('Error connecting to the database:', err);
-          return;
-        }
+      // connection.connect((err) => {
+      //   if (err) {
+      //     console.error('Error connecting to the database:', err);
+      //     return;
+      //   }
       
-        console.log('Connected to the database!');
-      });
+      //   console.log('Connected to the database!');
+      // });
 
-      var finalOutput = ""
-      await connection.query(codeToRun, (err, results) => {
-        if (err) {
-          console.error('Error executing the query:', err);
-          return;
-        }
-        finalOutput = results;
+      // var finalOutput = ""
+      // await connection.query(codeToRun, (err, results) => {
+      //   if (err) {
+      //     console.error('Error executing the query:', err);
+      //     return;
+      //   }
+      //   finalOutput = results;
       
-        console.log('Retrieved data:', results);
-      });
+      //   console.log('Retrieved data:', results);
+      // });
 
-      connection.end((err) => {
-        if (err) {
-          console.error('Error closing the database connection:', err);
-          return;
-        }
+      // connection.end((err) => {
+      //   if (err) {
+      //     console.error('Error closing the database connection:', err);
+      //     return;
+      //   }
       
-        console.log('Connection closed.');
-      });
+      //   console.log('Connection closed.');
+      // });
 
       
       
       // const codeOutput  = eval(codeToRun);
-      console.log("final ouptut",finalOutput)
+      // console.log("final ouptut",finalOutput)
     //   const reponseToUser  = await userFirendlyWayResponse(finalOutput);
-     return res.status(201).json({"success":"reponseToUser"});
+     return res.status(201).json({"success":ans});
   } catch (error) {
       console.log("helllo",error)
      return res.status(400).json({"failed":error});
