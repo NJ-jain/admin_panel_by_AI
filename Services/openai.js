@@ -96,7 +96,7 @@ const findActualQueryToRun = async (userQuery, selectedSchema, code) => {
             "instructions": [
               "Use arrow functions exclusively.",
               "Do not assign new function to any variables.",
-              "Use the format: async(...args)=>{return result[0][[0]];}.",
+              "Use the format: async (...args) => { return result; }.",
               "Don't escape double qouted characters inside function",
               "Ensure code is  encoded, stringified, and prefer double quotes over single quotes.",
               "Reverify your code and make sure it works without error",

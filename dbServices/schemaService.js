@@ -1,3 +1,4 @@
+const { default: axios } = require("axios");
 const dataSchema = require("../mongoose/dataSchema");
 const mongoose = require('mongoose')
 async function updateSchemaObject() {
@@ -143,22 +144,40 @@ async function insertTableNameandSchema(name , tableNameAndSchema) {
   }
 
 }
+async function getTableNameandDescriptionDBdash() {
+
+  try {
+ const response =   await axios.get('https://dbdash-backend-h7duexlbuq-el.a.run.app/646db8fc00bb6cfd4add9029/tblwg55wg?fields=fldwg55wg2qo,fldwg55wgdtl',
+    {
+     headers: {
+     'auth-key': 'keyPoqWmns_6K8V'
+     }
+     })
+    const result = response.data.data.rows
+  return result ;
+  } catch (error) {
+   // Handle any errors that occurred during the API call
+   console.error('Error:', error.message);
+  }
+ }
+
 async function getAllTableNameAndDescription(name , tableNameAndSchema) {
   try {
-    const mongooseURL = "mongodb+srv://Chanchal:root@cluster0.irtmyo9.mongodb.net/dbDash?retryWrites=true&w=majority"
-    const conn = await mongoose.connect(mongooseURL, {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-    })
-    const doc = await dataSchema.findById("646b13964c684c360ed71d39");
-    var  json = doc.postgresCredentials.tablesName 
+    // const mongooseURL = "mongodb+srv://Chanchal:root@cluster0.irtmyo9.mongodb.net/dbDash?retryWrites=true&w=majority"
+    // const conn = await mongoose.connect(mongooseURL, {
+    //   useUnifiedTopology: true,
+    //   useNewUrlParser: true,
+    // })
+    // const doc = await dataSchema.findById("646b13964c684c360ed71d39");
+    // var  json = doc.postgresCredentials.tablesName 
     let result = '';
-
-    for (let i = 0; i < json.length; i++) {
-      result += `name: '${json[i].name}', description: '${json[i].description}'`;
+    const data = await getTableNameandDescriptionDBdash()
+    // console.log(await getTableNameandDescriptionDBdash())
+    for (let i = 0; i < data.length; i++) {
+      result += `name: '${data[i].fldwg55wg2qo}', description: '${data[i].fldwg55wgdtl}'`
     
       // Add a comma if it's not the last element
-      if (i !== json.length - 1) {
+      if (i !== data.length - 1) {
         result += ', ';
       }
     }
