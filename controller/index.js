@@ -13,12 +13,16 @@ const pool = mysql.createPool({
 });
 const insertSchema = async (req, res) => {
     try {
-        const tableNameandDes = await getTableNameandDescription(req?.body?.schemaData);
-        var data  = JSON.parse(tableNameandDes.content)
-        for (let index = 0; index < data.length; index++) {
-          await callThirdPartyAPI(data[index].name,data[index].description,data[index].schema);
-        }
-        console.log("tableNameandDes",tableNameandDes)
+      const data  = await getTableNameandDescriptionDBdash()
+      // console.log("data " , data)
+    //     const tableNameandDes = await getTableNameandDescription(req?.body?.schemaData);
+    //     var data  = JSON.parse(tableNameandDes.content)
+    //     for (let index = 0; index < data.length; index++) {
+          // await callThirdPartyAPI(data[index].name,data[index].description,data[index].schema);
+          
+          // console.log("tableNameandDes",tableNameandDes)
+        // }
+
 
         // const createTableQueries = separateCreateTableQueries(schemass) // getting  array of individual table query 
         // for (const element of createTableQueries) {
@@ -31,7 +35,7 @@ const insertSchema = async (req, res) => {
         //       };
         //     await insertTableNameandSchema(tableNameandDes1.name , tableData);
         //     // Perform any other asynchronous operations here
-        //   }
+          // }
        return res.status(201).json({"success":"ans"});
     } catch (error) {
         console.log("helllo",error)
@@ -41,6 +45,7 @@ const insertSchema = async (req, res) => {
  const getQueryResult = async (req, res) => {
   try {
       var AllTablesNameAnddes = await getAllTableNameAndDescription()   
+      console.log(AllTablesNameAnddes)
       const {content } = await findTableNameForSchema("i want the no of failed delveried   ",AllTablesNameAnddes)
       console.log("content",content)
       const tableNameArray = JSON.parse(content).tablenames
@@ -53,8 +58,9 @@ const insertSchema = async (req, res) => {
 
      const res1 = eval(codeToRun.content
      )
+    const userFriendlyResponse  =  await res1();
       
-     return res.status(201).json({"success":res1});
+     return res.status(201).json({"success":userFriendlyResponse});
   } catch (error) {
       console.log("helllo",error)
      return res.status(400).json({"failed":error});
@@ -106,5 +112,4 @@ async function callThirdPartyAPI(tableName,description,schema) {
 }
 
 
-
- module.exports = {insertSchema,getQueryResult}
+ module.exports = {insertSchema,getQueryResult }
