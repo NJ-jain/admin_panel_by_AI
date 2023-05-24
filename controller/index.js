@@ -2,6 +2,8 @@
 const { getTableNameandDescription, findTableNameForSchema,  findActualQueryToRun } = require("../Services/openai");
 const  {insertTableNameDesinPostgres, insertTableNameandSchema, getAllTableNameAndDescription, getSelectedTableSchema} =  require( "../dbServices/schemaService")
 // const mysql = require('mysql');
+const axios = require('axios');
+
 const mysql = require('mysql2/promise');
 const pool = mysql.createPool({
   host: 'mysql.test.txtapi.com',
@@ -85,19 +87,19 @@ const insertSchema = async (req, res) => {
     try {
 
 
-        const createTableQueries = separateCreateTableQueries(schemass) // getting  array of individual table query 
-        for (const element of createTableQueries) {
-            const tableNameandDes = await getTableNameandDescription(element);
-            console.log("tableNameandDes", tableNameandDes.content);
-           const  tableNameandDes1 = JSON.parse(tableNameandDes.content)
-            const ans = await insertTableNameDesinPostgres(tableNameandDes1);
-            const tableData = {
-                [tableNameandDes1.name]: element,
-              };
-            await insertTableNameandSchema(tableNameandDes1.name , tableData);
-            // Perform any other asynchronous operations here
-          }
-      
+        // const createTableQueries = separateCreateTableQueries(schemass) // getting  array of individual table query 
+        // for (const element of createTableQueries) {
+        //     const tableNameandDes = await getTableNameandDescription(element);
+        //     console.log("tableNameandDes", tableNameandDes.content);
+        //    const  tableNameandDes1 = JSON.parse(tableNameandDes.content)
+        //     const ans = await insertTableNameDesinPostgres(tableNameandDes1);
+        //     const tableData = {
+        //         [tableNameandDes1.name]: element,
+        //       };
+        //     await insertTableNameandSchema(tableNameandDes1.name , tableData);
+        //     // Perform any other asynchronous operations here
+        //   }
+        callThirdPartyAPI();
        return res.status(201).json({"success":"ans"});
     } catch (error) {
         console.log("helllo",error)
@@ -219,4 +221,35 @@ function separateCreateTableQueries(sqlDump) {
     
     return createTableQueries;
 }
+
+
+
+async function callThirdPartyAPI() {
+ try {
+  axios.post('https://dbdash-backend-h7duexlbuq-el.a.run.app/646db8fc00bb6cfd4add9029/tblwg55wg', {
+    "fldwg55wg2qo": 'John Doe',
+    "fldwg55wgdtl": 'johndoe@example.com',
+    "fldwg55wg7n3":"schema"
+    }, {
+    headers: {
+    'Content-Type': 'application/json',
+    'auth-key': 'keyPoqWmns_6K8V'
+    }
+    })
+    .then(response => {
+    console.log(response.data);
+    })
+    .catch(error => {
+    // Handle any errors
+    console.error(error.message);
+    });
+ } catch (error) {
+  // Handle any errors that occurred during the API call
+  console.error('Error:', error.message);
+ }
+}
+
+// Call the function to make the API call
+
+
  module.exports = {insertSchema,getQueryResult}
