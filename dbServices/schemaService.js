@@ -39,7 +39,6 @@ async function getAllTableNameAndDescription(userDetails) {
 
 }
 async function getSelectedTableSchema(userDetails , name) {
-  let tableName = "fldwg55wg2qo"
   const resultArray = name.map(element =>`${userDetails.TableNames}='${element}'`);
 const dersiredArray = resultArray.join('||');
 // console.log("dersiredArray" , dersiredArray)
