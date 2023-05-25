@@ -11,7 +11,7 @@ const getTableNameandDescription = async (tableSchema) => {
 
   const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
-    messages: [ { "role": "user", "content": `Provide a array of JSON with 'tableName' and 'description and schema' for the followings table schema: ${tableSchema}. The JSON should look like [{ "name": "tableName", "description":"table purpose" ,schema : "create table "},{"name": "tableName1", "description":"table purpose1" ,schema : "create table "} ] and be error-free.` }]
+    messages: [{ "role": "user", "content": `Provide a array of JSON with 'tableName' and 'description and schema' for the followings table schema: ${tableSchema}. The JSON should look like [{ "name": "tableName", "description":"table purpose" ,schema : "create table "},{"name": "tableName1", "description":"table purpose1" ,schema : "create table "} ] and be error-free.` }]
   });
   return completion.data.choices[0].message;
 
@@ -36,15 +36,16 @@ const findTableNameForSchema = async (userQuery, AllTablesAndSchema) => {
       messages: [
         {
           "role": "user",
-          "content": prompt}]
+          "content": prompt
+        }]
     });
   }
   catch (e) {
     console.log(e.message)
 
-  } 
-// console.log("second result" ,completion.data.choices[0].message)
-console.log("second result" ,completion.data.choices[0].message)
+  }
+  // console.log("second result" ,completion.data.choices[0].message)
+  console.log("second result", completion.data.choices[0].message)
 
   return completion.data.choices[0].message;
 }
@@ -67,6 +68,7 @@ const findActualQueryToRun = async (userQuery, selectedSchema, code) => {
      ],
      "Current_code": ${code}  } 
      Return only code without explanations`
+     console.log(prompt)
   try {
     var completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
@@ -78,10 +80,10 @@ const findActualQueryToRun = async (userQuery, selectedSchema, code) => {
     });
     return completion?.data?.choices[0]?.message;
   } catch (error) {
-    console.log("errorr",error.message)
+    console.log("errorr", error.message)
     return error
   }
-  
+
 
 
 }
