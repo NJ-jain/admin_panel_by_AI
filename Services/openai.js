@@ -38,16 +38,16 @@ const findTableNameForSchema = async (userQuery, AllTablesAndSchema) => {
         {
           "role": "user",
           "content": `
-            {
-              "task": "Your task is to identify table names of the database that might be used to execute a db query to retrieve data for a given user_query.",
-              "user_query": "${userQuery}",
-              "instructions": [
-                "The output format: { 'tablenames': ['table1', 'table2'], 'Mongo': ['field1', 'field2'] }",
-                "Consider all MySQL tables [${AllTablesAndSchema}]",
-                "Also consider all Mongo collections [AllMongoKeys]",
-                "do not return explanation"
-              ]
-            }
+          {
+            "task": "Your task is to identify table names of the database that might be used to execute a db query to retrieve data for a given user_query.",
+            "user_query": "${userQuery}",
+            "instructions": [
+              "The output format: { tablenames: ['table1', 'table2'], MySQL: [field1, field2], MongoDB: [field1, field2] }",
+              "Consider all MySQL tables: [${AllMySQLTablesAndSchema}]",
+              "Also consider all MongoDB collections: [${AllMongoCollections}]"
+            ]
+          }
+          
           `
         }
         
@@ -58,6 +58,8 @@ const findTableNameForSchema = async (userQuery, AllTablesAndSchema) => {
     console.log(e.message)
 
   } 
+// console.log("second result" ,completion.data.choices[0].message)
+console.log("second result" ,completion.data.choices[0].message)
 
   return completion.data.choices[0].message;
 }
