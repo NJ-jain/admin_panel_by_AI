@@ -22,7 +22,7 @@ const findTableNameForSchema = async (userQuery, AllTablesAndSchema) => {
     "user_query": '${userQuery}',
     "instructions": [
       "The output format: { tablenames: ['table1', 'table2'], Mongo: [field1, field2] }",
-      "Consider all MySQL tables ["name: 'access_list', description: 'Stores access list information\t', name: 'actual_fail_delivered', description: 'Stores the count of fake_failed, delivered and final_failed messages for a date', name: 'admin_auto_recharge_setting', description: 'Stores the auto recharge settings for an admin panel', name: 'admin_base', description: 'Stores the admin_id, base_id, api_key and mobile number for an admin panel'"]",
+      "Consider all MySQL tables [${AllTablesAndSchema}]",
       "Also consider all Mongo collections [All keys name]"
     ]
   }`

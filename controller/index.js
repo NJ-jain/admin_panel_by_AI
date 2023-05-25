@@ -6,16 +6,12 @@ const mysql = require('mysql2/promise');
  const getQueryResult = async (req, res) => {
   try {
       const userDetails = await getUserDetailsById(req.params?.id)
-  
-      console.log("user detials",userDetails)
-      console.log("userDetails?.sqlCredentails1",Object.entries(userDetails))
-      console.log("userDetails?.sqlCredentails2", userDetails?.sqlCredentails)
       const pool = mysql.createPool(userDetails?.sqlCredentails); // connect to sql 
       var AllTablesNameAnddes = await getAllTableNameAndDescription(userDetails)   
       const {content } = await findTableNameForSchema(req?.body?.userQuery,AllTablesNameAnddes)
       console.log("content",content)
       const tableNameArray = JSON.parse(content).tablenames
-      const selectedTablesSchema =  await getSelectedTableSchema(tableNameArray) ;
+      const selectedTablesSchema =  await getSelectedTableSchema(userDetails , tableNameArray) ;
       console.log("selectedTablesSchema",selectedTablesSchema)
       let codeToRun = await findActualQueryToRun(req?.body?.userQuery ,selectedTablesSchema,   `async()=>{ const connection = await pool.getConnection();
         // your code goes here 
