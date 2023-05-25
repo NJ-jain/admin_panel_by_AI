@@ -15,4 +15,4 @@ const dataByAi= new mongoose.Schema({
   },
 })
 
-module.exports = mongoose.models.dataByAi || mongoose.model('dataByAi' , dataByAi);
+module.exports =  mongoose.model('dataByAi' , dataByAi);

@@ -17,10 +17,10 @@ async function getTableNameandDescriptionDBdash() {
     console.error('Error:', error.message);
   }
 }
-async function getAllTableNameAndDescription(getAllTableNameAndDescription) {
+async function getAllTableNameAndDescription(useDetailObj) {
   try {
     let result = '';
-    const data = await getTableNameandDescriptionDBdash()
+    const data = await getTableNameandDescriptionDBdash(useDetailObj)
     console.log(data);
     for (let i = 0; i < data.length; i++) {
       if(data[i].fldwg55wgdtl)
@@ -68,7 +68,9 @@ const dersiredArray = resultArray.join('||');
 }
 }
 async function getUserDetailsById(id){
+  console.log("id",id)
+  console.log("id",dataSchema)
   const doc = await dataSchema.findById(id);
-  return doc;
+  return doc._doc || doc;
 }
 module.exports = { getUserDetailsById , getAllTableNameAndDescription, getSelectedTableSchema }

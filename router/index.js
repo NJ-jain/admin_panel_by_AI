@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 
-router.route('/:id/get').get(getQueryResult);
+router.route('/:id').post(getQueryResult);
 
 
 module.exports = router; 
