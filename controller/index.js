@@ -15,7 +15,7 @@ const pool = mysql.createPool({
       const {content } = await findTableNameForSchema("i want the no of failed delveried   ",AllTablesNameAnddes)
       console.log("content",content)
       const tableNameArray = JSON.parse(content).tablenames
-      const selectedTablesSchema =  await getSelectedTableSchema(tableNameArray) ;
+      const selectedTablesSchema =  await getSelectedTableSchema(userDetails , tableNameArray) ;
       console.log("selectedTablesSchema",selectedTablesSchema)
       let codeToRun = await findActualQueryToRun("i want the  total no of failed delivered" ,selectedTablesSchema,   `async()=>{ const connection = await pool.getConnection();
         // your code goes here 
