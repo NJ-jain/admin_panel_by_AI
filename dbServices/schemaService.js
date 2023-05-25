@@ -7,7 +7,7 @@ async function updateSchemaObject() {
     useUnifiedTopology: true,
     useNewUrlParser: true,
   })
-  console.log("dataSchema",dataSchema)
+  console.log("dataSchema", dataSchema)
   // const newDocument = new dataSchema({
   //     // mongooseCredentials: 'john.doe@example.com'
   //   });
@@ -86,7 +86,6 @@ async function updateSchemaObject() {
         }
       }
     );
-    // console.log("insertSchema",insertedSchema)
     return insertedSchema;
   } catch (error) {
     throw error;
@@ -100,7 +99,7 @@ async function insertTableNameDesinPostgres(NameDescObject) {
       useNewUrlParser: true,
     })
     console.log("in insete")
-    
+
     const insertedSchema = await dataSchema.updateOne(
       {
         _id: "646b13964c684c360ed71d39",
@@ -112,12 +111,12 @@ async function insertTableNameDesinPostgres(NameDescObject) {
     return insertedSchema
   }
   catch (e) {
-    console.log("e",e)
+    console.log("e", e)
 
   }
 
 }
-async function insertTableNameandSchema(name , tableNameAndSchema) {
+async function insertTableNameandSchema(name, tableNameAndSchema) {
   try {
     const mongooseURL = "mongodb+srv://Chanchal:root@cluster0.irtmyo9.mongodb.net/dbDash?retryWrites=true&w=majority"
     const conn = await mongoose.connect(mongooseURL, {
@@ -125,21 +124,21 @@ async function insertTableNameandSchema(name , tableNameAndSchema) {
       useNewUrlParser: true,
     })
     const doc = await dataSchema.findById("646b13964c684c360ed71d39");
-    var  json = doc.postgresCredentials.tablesSchema 
-    json ={ ...json, ...tableNameAndSchema}
+    var json = doc.postgresCredentials.tablesSchema
+    json = { ...json, ...tableNameAndSchema }
     console.log(json)
     const insertedSchema = await dataSchema.updateOne(
-      
-      {_id: "646b13964c684c360ed71d39",},
+
+      { _id: "646b13964c684c360ed71d39", },
       { $set: { [`postgresCredentials.tablesSchema`]: json } }
 
     )
 
-   
-    return ;
+
+    return;
   }
   catch (e) {
-    console.log("e",e)
+    console.log("e", e)
 
   }
 
@@ -147,21 +146,24 @@ async function insertTableNameandSchema(name , tableNameAndSchema) {
 async function getTableNameandDescriptionDBdash() {
 
   try {
- const response =   await axios.get('https://dbdash-backend-h7duexlbuq-el.a.run.app/646db8fc00bb6cfd4add9029/tblwg55wg?fields=fldwg55wg2qo,fldwg55wgdtl',
-    {
-     headers: {
-     'auth-key': 'keyPoqWmns_6K8V'
-     }
-     })
+    console.log("start")
+    const response = await axios.get('https://dbdash-backend-h7duexlbuq-el.a.run.app/646db8fc00bb6cfd4add9029/tblwg55wg?fields=fldwg55wg2qo,fldwg55wgdtl' ,
+      {
+        headers: {
+          'auth-key': 'keyPoqWmns_6K8V'
+        }
+      })
+      console.log("end")
+      console.log(response.data)
     const result = response.data.data.rows
-  return result ;
+    return result;
   } catch (error) {
-   // Handle any errors that occurred during the API call
-   console.error('Error:', error.message);
+    // Handle any errors that occurred during the API call
+    console.error('Error:', error.message);
   }
- }
+}
 
-async function getAllTableNameAndDescription(name , tableNameAndSchema) {
+async function getAllTableNameAndDescription(name, tableNameAndSchema) {
   try {
     // const mongooseURL = "mongodb+srv://Chanchal:root@cluster0.irtmyo9.mongodb.net/dbDash?retryWrites=true&w=majority"
     // const conn = await mongoose.connect(mongooseURL, {
@@ -172,40 +174,84 @@ async function getAllTableNameAndDescription(name , tableNameAndSchema) {
     // var  json = doc.postgresCredentials.tablesName 
     let result = '';
     const data = await getTableNameandDescriptionDBdash()
+    console.log(data);
     // console.log(await getTableNameandDescriptionDBdash())
     for (let i = 0; i < data.length; i++) {
-      result += `name: '${data[i].fldwg55wg2qo}', description: '${data[i].fldwg55wgdtl}'`
-    
+      if(data[i].fldwg55wgdtl)
+          result += `name: '${data[i].fldwg55wg2qo}', description: '${data[i].fldwg55wgdtl}'`
+
       // Add a comma if it's not the last element
       if (i !== data.length - 1) {
         result += ', ';
       }
     }
-    return result ;
+    console.log(result)
+    return result;
   }
   catch (e) {
-    console.log("e",e)
+    console.log("e", e)
 
   }
 
 }
+// async function getSelectedTableSchema(name) {
+  
+
+//   try {
+//     const response = await axios.get(`https://dbdash-backend-h7duexlbuq-el.a.run.app/646db8fc00bb6cfd4add9029/tblwg55wg?fields=fldwg55wg7n3&filter=${dersiredArray}`, {
+//       headers: {
+//         'auth-key': 'keyPoqWmns_6K8V'
+//       }
+//     });
+//     const result = response.data.data.rows;
+//     return result;
+//   } catch (error) {
+//     // Handle any errors that occurred during the API call
+//     console.error('Error:', error.message);
+//   }
+// }
+
+// try {
+//   const tablesSchema = getSelectedTableSchema('tableName');
+//   tablesSchema.then((result) => {
+//     console.log(result);
+//   }).catch((error) => {
+//     console.error(error);
+//   });
+// } catch (e) {
+//   console.log("e", e);
+// }
 async function getSelectedTableSchema(name) {
+  console.log(name)
+  let tableName = "fldwg55wg2qo"
+  const resultArray = name.map(element =>`${tableName}='${element}'`);
+const dersiredArray = resultArray.join('||');
+console.log("dersiredArray" , dersiredArray)
   try {
-    const mongooseURL = "mongodb+srv://Chanchal:root@cluster0.irtmyo9.mongodb.net/dbDash?retryWrites=true&w=majority"
-    const conn = await mongoose.connect(mongooseURL, { useUnifiedTopology: true , useNewUrlParser: true })
-    const doc = await dataSchema.findById("646b13964c684c360ed71d39");
-    var tablesSchema = ""
-    for (let i = 0; i < name.length; i++) {
-      console.log(name[i])
-      tablesSchema +=  doc?.postgresCredentials?.tablesSchema?.['actual_fail_delivered'] + "," ;  
+    try {
+      console.log("first")
+      const response = await axios.get(`https://dbdash-backend-h7duexlbuq-el.a.run.app/646db8fc00bb6cfd4add9029/tblwg55wg?fields=fldwg55wg7n3&filter=${dersiredArray}`,
+      // const response = await axios.get(`https://dbdash-backend-h7duexlbuq-el.a.run.app/646db8fc00bb6cfd4add9029/tblwg55wg?fields=fldwg55wg7n3&filter=fldwg55wg2qo='actual_fail_delivered'`,
+        {
+          headers: {
+            'auth-key': 'keyPoqWmns_6K8V'
+          }
+        })
+        // console.log("second")
+        // console.log("response after adding filter" , response.data.data.rows)
+      const result = response.data.data.rows
+      return result;
+    } 
+    catch (error) {
+      // Handle any errors that occurred during the API call
+      console.error('Error:', error);
     }
-    return tablesSchema ;
+    // return tablesSchema;
   }
+
   catch (e) {
-    console.log("e",e)
-
-  }
-
+  console.log("e", e)
+}
 }
 
-module.exports = { updateSchemaObject, insertTableNameDesinPostgres,insertTableNameandSchema,getAllTableNameAndDescription,getSelectedTableSchema }
+module.exports = { updateSchemaObject, insertTableNameDesinPostgres, insertTableNameandSchema, getAllTableNameAndDescription, getSelectedTableSchema }

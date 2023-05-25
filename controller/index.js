@@ -1,6 +1,6 @@
 
 const { getTableNameandDescription, findTableNameForSchema,  findActualQueryToRun } = require("../Services/openai");
-const  {insertTableNameDesinPostgres, insertTableNameandSchema, getAllTableNameAndDescription, getSelectedTableSchema} =  require( "../dbServices/schemaService")
+const  {insertTableNameDesinPostgres, insertTableNameandSchema, getAllTableNameAndDescription, getSelectedTableSchema, getTableNameandDescriptionDBdash} =  require( "../dbServices/schemaService")
 // const mysql = require('mysql');
 const axios = require('axios');
 
@@ -14,8 +14,8 @@ const pool = mysql.createPool({
 const insertSchema = async (req, res) => {
     try {
       const data  = await getTableNameandDescriptionDBdash()
-      // console.log("data " , data)
-    //     const tableNameandDes = await getTableNameandDescription(req?.body?.schemaData);
+      console.log("data " , data)
+        // const tableNameandDes = await getTableNameandDescription(req?.body?.schemaData);
     //     var data  = JSON.parse(tableNameandDes.content)
     //     for (let index = 0; index < data.length; index++) {
           // await callThirdPartyAPI(data[index].name,data[index].description,data[index].schema);
@@ -45,22 +45,22 @@ const insertSchema = async (req, res) => {
  const getQueryResult = async (req, res) => {
   try {
       var AllTablesNameAnddes = await getAllTableNameAndDescription()   
-      console.log(AllTablesNameAnddes)
+      console.log("AllTablesNameAnddes",AllTablesNameAnddes)
       const {content } = await findTableNameForSchema("i want the no of failed delveried   ",AllTablesNameAnddes)
       console.log("content",content)
       const tableNameArray = JSON.parse(content).tablenames
       const selectedTablesSchema =  await getSelectedTableSchema(tableNameArray) ;
       console.log("selectedTablesSchema",selectedTablesSchema)
-      let codeToRun = await findActualQueryToRun("i want the  total no of failed delivered" ,selectedTablesSchema ,
-      `const connection = await pool.getConnection();
-      connection.release();`);
+      let codeToRun = await findActualQueryToRun("i want the  total no of failed delivered" ,selectedTablesSchema)
+      // `const connection = await pool.getConnection();
+      // connection.release();`)
       console.log("codeToRun",codeToRun.content)
 
      const res1 = eval(codeToRun.content
      )
     const userFriendlyResponse  =  await res1();
       
-     return res.status(201).json({"success":userFriendlyResponse});
+     return res.status(201).json({"success":"userFriendlyResponse"});
   } catch (error) {
       console.log("helllo",error)
      return res.status(400).json({"failed":error});
@@ -112,4 +112,4 @@ async function callThirdPartyAPI(tableName,description,schema) {
 }
 
 
- module.exports = {insertSchema,getQueryResult }
+ module.exports = {insertSchema,getQueryResult}
