@@ -7,7 +7,6 @@ async function updateSchemaObject() {
     useUnifiedTopology: true,
     useNewUrlParser: true,
   })
-  console.log("dataSchema", dataSchema)
   // const newDocument = new dataSchema({
   //     // mongooseCredentials: 'john.doe@example.com'
   //   });
@@ -98,7 +97,6 @@ async function insertTableNameDesinPostgres(NameDescObject) {
       useUnifiedTopology: true,
       useNewUrlParser: true,
     })
-    console.log("in insete")
 
     const insertedSchema = await dataSchema.updateOne(
       {
@@ -107,7 +105,6 @@ async function insertTableNameDesinPostgres(NameDescObject) {
       { $addToSet: { "postgresCredentials.tablesName": NameDescObject } }
     )
 
-    console.log("insertedSchema", insertedSchema)
     return insertedSchema
   }
   catch (e) {
@@ -126,7 +123,6 @@ async function insertTableNameandSchema(name, tableNameAndSchema) {
     const doc = await dataSchema.findById("646b13964c684c360ed71d39");
     var json = doc.postgresCredentials.tablesSchema
     json = { ...json, ...tableNameAndSchema }
-    console.log(json)
     const insertedSchema = await dataSchema.updateOne(
 
       { _id: "646b13964c684c360ed71d39", },
@@ -146,15 +142,12 @@ async function insertTableNameandSchema(name, tableNameAndSchema) {
 async function getTableNameandDescriptionDBdash() {
 
   try {
-    console.log("start")
     const response = await axios.get('https://dbdash-backend-h7duexlbuq-el.a.run.app/646db8fc00bb6cfd4add9029/tblwg55wg?fields=fldwg55wg2qo,fldwg55wgdtl' ,
       {
         headers: {
           'auth-key': 'keyPoqWmns_6K8V'
         }
       })
-      console.log("end")
-      console.log(response.data)
     const result = response.data.data.rows
     return result;
   } catch (error) {
@@ -174,8 +167,6 @@ async function getAllTableNameAndDescription(name, tableNameAndSchema) {
     // var  json = doc.postgresCredentials.tablesName 
     let result = '';
     const data = await getTableNameandDescriptionDBdash()
-    console.log(data);
-    // console.log(await getTableNameandDescriptionDBdash())
     for (let i = 0; i < data.length; i++) {
       if(data[i].fldwg55wgdtl)
           result += `name: '${data[i].fldwg55wg2qo}', description: '${data[i].fldwg55wgdtl}'`
@@ -185,7 +176,6 @@ async function getAllTableNameAndDescription(name, tableNameAndSchema) {
         result += ', ';
       }
     }
-    console.log(result)
     return result;
   }
   catch (e) {
@@ -222,11 +212,10 @@ async function getAllTableNameAndDescription(name, tableNameAndSchema) {
 //   console.log("e", e);
 // }
 async function getSelectedTableSchema(name) {
-  console.log(name)
   let tableName = "fldwg55wg2qo"
   const resultArray = name.map(element =>`${tableName}='${element}'`);
 const dersiredArray = resultArray.join('||');
-console.log("dersiredArray" , dersiredArray)
+// console.log("dersiredArray" , dersiredArray)
   try {
     try {
       console.log("first")

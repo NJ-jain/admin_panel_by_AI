@@ -17,19 +17,18 @@ const getTableNameandDescription = async (tableSchema) => {
 
 }
 const findTableNameForSchema = async (userQuery, AllTablesAndSchema) => {
+  var prompt = `{
+    "task": "Your task is to identify table names of the database that might be used to execute a db query to retrieve data for a given user_query.",
+    "user_query": '${userQuery}',
+    "instructions": [
+      "The output format: { tablenames: ['table1', 'table2'], Mongo: [field1, field2] }",
+      "Consider all MySQL tables ["name: 'access_list', description: 'Stores access list information\t', name: 'actual_fail_delivered', description: 'Stores the count of fake_failed, delivered and final_failed messages for a date', name: 'admin_auto_recharge_setting', description: 'Stores the auto recharge settings for an admin panel', name: 'admin_base', description: 'Stores the admin_id, base_id, api_key and mobile number for an admin panel'"]",
+      "Also consider all Mongo collections [All keys name]"
+    ]
+  }`
   console.log("second", {
     "role": "user",
-    "content": `
-      {
-        "task": "Your task is to identify table names of the database that might be used to execute a db query to retrieve data for a given user_query.",
-        "user_query": '${userQuery}',
-        "instructions": [
-          "The output format: { tablenames: ['table1', 'table2'], Mongo: [field1, field2] }",
-          "Consider all MySQL tables [${AllTablesAndSchema}]",
-          "Also consider all Mongo collections [All keys name]"
-        ]
-      }
-    `
+    "content": prompt
   });
   try {
     var completion = await openai.createChatCompletion({
@@ -37,21 +36,7 @@ const findTableNameForSchema = async (userQuery, AllTablesAndSchema) => {
       messages: [
         {
           "role": "user",
-          "content": `
-          {
-            "task": "Your task is to identify table names of the database that might be used to execute a db query to retrieve data for a given user_query.",
-            "user_query": "${userQuery}",
-            "instructions": [
-              "The output format: { tablenames: ['table1', 'table2'], MySQL: [field1, field2], MongoDB: [field1, field2] }",
-              "Consider all MySQL tables: [${AllMySQLTablesAndSchema}]",
-              "Also consider all MongoDB collections: [${AllMongoCollections}]"
-            ]
-          }
-          
-          `
-        }
-        
-      ]
+          "content": prompt}]
     });
   }
   catch (e) {
@@ -65,51 +50,31 @@ console.log("second result" ,completion.data.choices[0].message)
 }
 
 const findActualQueryToRun = async (userQuery, selectedSchema, code) => {
-  console.log("third", {
-    "role": "system",
-    "content": `{
-      "task": Write the JavaScript code for user_query : ${userQuery} using given schema (SQL, Mongo, or both).,
-      "SQl_schema": ${selectedSchema},
-      "Mongo_schema": "",
-      "instructions": [
-        "Use arrow functions exclusively.",
-        "Do not assign new function to any variables.",
-        "Use the format: async(...args)=>{return response;}.",
-        "Don't escape double qouted characters inside function",
-        "Ensure code is  encoded, stringified, and prefer double quotes over single quotes.",
-        "Reverify your code and make sure it works without error",
-        "Return only code without explanations",
-        "You may use one or multiple queries to get the desired result",
-        "Make sure the code output is in English, easy to read for humans and engaging"
-      ],
-      "prompt":  this JavaScript code: ${code}
-    }`
-  })
+  var prompt = `{
+    "task": "Complete the current JavaScript code considering User_query and considering given DB schemas.",
+     "user_query": "${userQuery}",
+     "SQl_schema": "${selectedSchema}",
+     "Mongo_schema": "",
+     "instructions": [
+       "Use arrow functions exclusively like this - 'async(...args)=>{return result;}'",
+       "Do not assign new function to any variables.",
+       "Query result contains 2 dimensional array.",
+       "Don't escape double quoted characters inside function",
+       "Ensure code is  encoded, stringified, and prefer double quotes over single quotes.",
+       "created code is very important and make sure it works",
+       "You may use one or multiple queries to get the desired result",
+       "Form final output in English sentence which is easy to read for humans and engaging"
+     ],
+     "Current_code": ${code}  } 
+     Return only code without explanations`
   try {
-    const completion = await openai.createChatCompletion({
+    var completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
         {
-          "role": "system",
-          "content": `{
-            "task": Write the JavaScript code for user_query : ${userQuery} using given schema (SQL, Mongo, or both).,
-            "SQl_schema": ${selectedSchema},
-            "Mongo_schema": "",
-            "instructions": [
-              "Use arrow functions exclusively.",
-              "Do not assign new function to any variables.",
-              "Use the format: async (...args) => { return result; }.",
-              "Don't escape double qouted characters inside function",
-              "Ensure code is  encoded, stringified, and prefer double quotes over single quotes.",
-              "Reverify your code and make sure it works without error",
-              "Return only code without explanations",
-              "You may use one or multiple queries to get the desired result",
-              "Form final output in English sentence, easy to read for humans and engaging"
-            ],
-            "prompt":  this JavaScript code: ${code}
-          }`
-        }
-      ]
+          "role": "user",
+          "content": prompt
+        }]
     });
     return completion?.data?.choices[0]?.message;
   } catch (error) {

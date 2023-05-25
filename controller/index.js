@@ -14,7 +14,6 @@ const pool = mysql.createPool({
 const insertSchema = async (req, res) => {
     try {
       const data  = await getTableNameandDescriptionDBdash()
-      console.log("data " , data)
         // const tableNameandDes = await getTableNameandDescription(req?.body?.schemaData);
     //     var data  = JSON.parse(tableNameandDes.content)
     //     for (let index = 0; index < data.length; index++) {
@@ -45,7 +44,6 @@ const insertSchema = async (req, res) => {
  const getQueryResult = async (req, res) => {
   try {
       var AllTablesNameAnddes = await getAllTableNameAndDescription()   
-      console.log("AllTablesNameAnddes",AllTablesNameAnddes)
       const {content } = await findTableNameForSchema("i want the no of failed delveried   ",AllTablesNameAnddes)
       console.log("content",content)
       const tableNameArray = JSON.parse(content).tablenames
